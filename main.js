@@ -151,6 +151,23 @@ var app = http.createServer(function(request,response){
         });
       });
     }
+    else if(pathname === '/delete_process'){
+      var body = '';
+      request.on('data', function(data){
+        body = body + data;
+        if(body.length > 1e6){//data가 너무 많으면 끊기
+            request.connection.destroy();
+        }
+      });
+      request.on('end', function(){ //정보 수신 끝
+        var post = qs.parse(body);
+        var id = post.id;
+        fs.unlink(`data/${id}`, function(error){
+          response.writeHead(302, {Location: `/`});
+          response.end();
+        })
+      });
+    }
      else {
       response.writeHead(404);//200 success 404 fail
       response.end('Not found');
